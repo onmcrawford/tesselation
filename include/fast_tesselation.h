@@ -12,21 +12,18 @@ typedef struct image_struct image;
 typedef struct site_struct sites;
 typedef struct schunk_struct s_chunk;
 
-// float power; int name;
-struct argument {
-	float power;
-	int name;
-};
 // unsigned int width, height; unsigned char *bytemap;
 struct image_struct {
 	unsigned int width, height;
 	unsigned char *bytemap;
 };
+
 // int x, y; unsigned char r, g, b;
 struct site_struct {
 	int x, y;
 	unsigned char r, g, b; // color value at char
 };
+
 // sites **siteArr; int sitesHeld;
 // special chunk, 3x3 chunks, with overlap
 struct schunk_struct {
@@ -34,9 +31,26 @@ struct schunk_struct {
 	int sitesHeld;
 };
 
-sites *closest(int x, int y, float p);
+// float power; int name;
+struct argument {
+	float power;
+	int name;
+	unsigned char chunkX;
+	unsigned char chunkY;
+	struct image_struct img;
+};
+
+// sets initial values for where sites are
 void initialiseSites(void);
+
+// function called to be placed in threadpool to create a single image
 void worker(void *arg);
+
+// function called to figure out only a single chunk, so that creating a single
+//image is multithreaded too
+void subWorker(void *arg);
+
+// remove broken data
 void cleansites(void);
 
 #endif

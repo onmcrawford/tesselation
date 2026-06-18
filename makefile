@@ -22,27 +22,16 @@
 #		--enable-__cxa_atexit --enable-cet=auto --enable-checking=release --enable-clocale=gnu \
 #		--enable-default-pie --enable-default-ssp --enable-gnu-indirect-function \
 #		--enable-gnu-unique-object --enable-libstdcxx-backtrace --enable-link-serialization=1 \
-#		--enable-linker-build-id --enable-lto --enable-multilib --enable-plugin --enable-shared \
+#		--enable-linker-build-id --enable-lto --enableultilib --enable-plugin --enable-shared \
 #		--enable-threads=posix --disable-libssp --disable-libstdcxx-pch --disable-werror
 # 	Thread model: posix
 # 	Supported LTO compression algorithms: zlib zstd
 #	gcc version 15.2.1 20251112 (GCC) 
 
 
-
-
-
-
-
-
 TARGET = tes 
 LIBS_INCLUDED = 1
-#convert:
-#	mogrify -format png out/*.ppm
-#
-
-
-
+# OPTIMIZING = 1
 
 
 
@@ -58,11 +47,18 @@ LIBS_INCLUDED = 1
 
 CC      	:= gcc
 CWARNINGS	:= -Wall -Wextra -Wpedantic # -Wconversion -Wsign-conversion # -Weverything
-CFLAGS  	:= -Ofast $(CWARNINGS)
-LDLIBS		= -lpthread -pthread -lm # libraries to link against
+CFLAGS  	:= $(CWARNINGS)
+LDLIBS		= -pthread -lm # libraries to link against & link time optimization
+
+ifdef OPTIMIZING
+CFLAGS += -O3 -flto -fno-plt -march=native
+endif
+
 ifdef DEBUG # if debugging
-CFLAGS += -g # NOTE: OPTIMIZING IS STILL ON!
+CFLAGS += -g -fno-omit-frame-pointer -march=native # NOTE: OPTIMIZING IS STILL ON!
+ifdef OPTIMIZING
 $(info debug on: optimizing is still on default! Add -O0 to turn off optimisation)
+endif
 endif
 
 # PROJECT STRUCTURE SETTINGS
@@ -88,6 +84,20 @@ LIB_INCDS		:= $(wildcard $(LIB_DIR)/*/include) # list of all include dirs in lib
 IFLAGS			+= $(addprefix -I,$(LIB_INCDS)) # adds -I[includes] to IFLAGS
 endif
 
+#####################################################################
+## custom additions
+HAVE_OPENCL := $(shell ldconfig -p | grep -q OpenCL && echo 1)
+
+ifeq ($(USE_OPENCL),1)
+  ifeq ($(HAVE_OPENCL),1)
+    CFLAGS  += -DUSE_OPENCL
+    LDLIBS  += -lOpenCL
+  else
+    $(error OpenCL requested but not found)
+  endif
+endif
+#####################################################################
+
 #				██████╗ ██╗   ██╗██╗     ███████╗███████╗
 #				██╔══██╗██║   ██║██║     ██╔════╝██╔════╝
 #				██████╔╝██║   ██║██║     █████╗  ███████╗
@@ -96,7 +106,7 @@ endif
 #				╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚══════╝
 
 ifdef LIBS_INCLUDED
-all: $(STATIC_LIBS) $(TARGET)
+all: $(STATIC_LIBS) $(OBJ_DIR)/$(TARGET)
 
 $(STATIC_LIBS):
 	$(MAKE) -C $(dir $@) CFLAGS="$(CFLAGS)"
@@ -106,10 +116,10 @@ ifndef LIBS_INCLUDED
 all: $(TARGET)
 endif
 
-$(TARGET): $(OBJS)
+$(OBJ_DIR)/$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(STATIC_LIBS) $(LDLIBS)
 
-build/%.o: src/%.c
+build/%.o: src/%.c $(INC_DIR)/defs.h
 	@mkdir -p build/
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
