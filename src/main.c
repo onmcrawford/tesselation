@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include "bar.h"
 #include "defs.h"
@@ -88,14 +90,19 @@ void singleImage(void)
 	FILE *f = fopen("out/test0.ppm", "wb");
 
 	if (!f) {
-		printf("ehh file open error idk what to do\n");
+		char *cwd = getcwd(NULL, 0);
+
+		printf("CWD: %s\n", cwd);
+		free(cwd);
+		printf("file open error %s\n", strerror(errno));
 		exit(1);
 	}
 
 	fprintf(f, "P6\n%u %u\n255\n", w, h);
 
-	if (fwrite(imageRam.bytemap, sizeof(unsigned char), w * h * 3, f) !=
-	    (unsigned long)w * h * 3) {
+	// We write in small parts, around 1gb
+	if (write_buffer(f, imageRam.bytemap,
+			 sizeof(unsigned char) * w * h * 3) != 1) {
 		fclose(f);
 		printf("uhh file write error idk\n");
 	} else {

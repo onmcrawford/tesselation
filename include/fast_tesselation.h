@@ -40,6 +40,9 @@ struct argument {
 	struct image_struct img;
 };
 
+// allows for chunk based writing to files
+int write_buffer(FILE *f, void *buf, size_t size);
+
 // sets initial values for where sites are
 void initialiseSites(void);
 

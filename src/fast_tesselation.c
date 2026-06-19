@@ -12,6 +12,32 @@
 static sites *completeSites; // array containing all sites in img
 static s_chunk *sChunkedSites; // special chunks, formed by 3x3 chunks
 
+int write_buffer(FILE *f, void *buf, size_t size)
+{
+	size_t offset = 0;
+	size_t remaining = size;
+	size_t written = 0;
+	size_t to_write = 0;
+	const size_t CHUNK_SIZE = (4 * 1024 * 1024); // 4 MB
+
+	while (offset < size) {
+		// written = min(CHUNK_SIZE, remaining)
+		to_write = remaining < CHUNK_SIZE ? remaining : CHUNK_SIZE;
+		written = fwrite((char *)buf + offset, 1, to_write, f);
+		if (written != to_write) {
+			fprintf(stderr, "uh oh write error\n");
+			return -1;
+		}
+
+		// printf("wrote %lu chunk, with %lu remaining", written,
+		//    remaining);
+
+		offset += written;
+		remaining = size - written;
+	}
+	return 1;
+}
+
 static inline int randMax(int max)
 {
 	return rand() % (max);
@@ -185,7 +211,7 @@ void worker(void *arg)
 	}
 	char fileName[20];
 
-	sprintf(fileName, "out/test%d.ppm", (*val).name);
+	sprintf(fileName, "out/test%d.ppm", val->name);
 
 	FILE *f = fopen(fileName, "wb");
 

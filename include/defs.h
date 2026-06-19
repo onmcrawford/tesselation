@@ -6,8 +6,8 @@
 
 #define CHUNK_DIM 20
 
-#define CHUNK_WIDTH 400
-#define CHUNK_HEIGHT 400
+#define CHUNK_WIDTH 40
+#define CHUNK_HEIGHT 40
 
 #define CHUNK_AMOUNT (CHUNK_WIDTH * CHUNK_HEIGHT)
 
