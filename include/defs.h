@@ -14,7 +14,7 @@
 #define WIDTH (CHUNK_WIDTH * CHUNK_DIM)
 #define HEIGHT (CHUNK_HEIGHT * CHUNK_DIM)
 
-#define COLORAMOUNT 3
+#define COLORAMOUNT 6
 #define SITEAMOUNT (10 * CHUNK_AMOUNT) // how about ~10 per chunk
 // #define SITEAMOUNT 20
 
