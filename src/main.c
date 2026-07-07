@@ -109,7 +109,7 @@ void singleImage(void)
 		fclose(f);
 	}
 
-	flushBar("progress: ");
+	// flushBar("progress: ");
 	free(imageRam.bytemap);
 }
 

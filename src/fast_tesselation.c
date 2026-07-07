@@ -33,7 +33,7 @@ int write_buffer(FILE *f, void *buf, size_t size)
 		//    remaining);
 
 		offset += written;
-		remaining = size - written;
+		remaining = size - offset;
 	}
 	return 1;
 }
