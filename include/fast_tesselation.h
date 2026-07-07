@@ -35,8 +35,8 @@ struct schunk_struct {
 struct argument {
 	float power;
 	int name;
-	unsigned char chunkX;
-	unsigned char chunkY;
+	unsigned int chunkX;
+	unsigned int chunkY;
 	struct image_struct img;
 };
 
